@@ -20,15 +20,18 @@
   },
   "homepage": "https://github.com/luisjose1010/tomodachi-api#readme",
   "dependencies": {
+    "@prisma/client": "^6.6.0",
     "@types/express": "^5.0.1",
     "express": "^5.1.0",
     "morgan": "^1.10.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.14.1",
     "nodemon": "^3.1.9",
+    "prisma": "^6.6.0",
     "ts-node": "^10.9.2"
   }
 }

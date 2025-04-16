@@ -1,0 +1,209 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  id_card      String   @unique
+  name         String
+  email        String   @unique
+  password     String
+  phone_number String?  @unique
+  instagram    String?
+  is_verified  Boolean  @default(false)
+  role_id      Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  role                 Role          @relation(fields: [role_id], references: [id])
+  transactions         Transaction[]
+  bills                Bill[] // Relación inversa para Bills
+  stands               Stand[] // Relación inversa para Stands
+  sponsors             Sponsor[] // Relación inversa para Sponsors
+  verifiedTransactions Transaction[] @relation("VerifiedBy") // Relación para verified_by en Transactions
+}
+
+model Transaction {
+  id               Int       @id @default(autoincrement())
+  reference_number String    @unique
+  payment_system   String
+  amount           Float
+  is_verified      Boolean   @default(false)
+  verified_date    DateTime? // Null si no se ha verificado
+  transaction_date DateTime // Fecha suministrada por el usuario
+  phone_number     String?
+  verified_by      Int? // ID del usuario que verifica
+  user_id          Int // ID del usuario que realiza la transacción
+  bill_id          Int
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  user     User  @relation(fields: [user_id], references: [id])
+  verifier User? @relation("VerifiedBy", fields: [verified_by], references: [id]) // Usuario que verificó
+  bill     Bill  @relation(fields: [bill_id], references: [id])
+}
+
+model Bill {
+  id           Int      @id @default(autoincrement())
+  token        String   @unique
+  is_redeemed  Boolean  @default(false)
+  total_amount Float // Registro histórico fijo de la compra, no se actualiza
+  event_id     Int
+  promo_id     Int?
+  user_id      Int? // Clave foránea nullable a User (solo uno de los 3)
+  stand_id     Int? // Clave foránea nullable a Stand (solo uno de los 3)
+  sponsor_id   Int? // Clave foránea nullable a Sponsor (solo uno de los 3)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  event       Event         @relation(fields: [event_id], references: [id])
+  promo       TicketPromo?  @relation(fields: [promo_id], references: [id]) // Relación con TicketPromo
+  user        User?         @relation(fields: [user_id], references: [id]) // Se esta pagando una entrada para un usuario (solo uno de los 3)
+  stand       Stand?        @relation(fields: [stand_id], references: [id]) // Se esta pagando un stand (solo uno de los 3)
+  sponsor     Sponsor?      @relation(fields: [sponsor_id], references: [id]) // Se esta pagando un sponsor (solo uno de los 3)
+  transaction Transaction[] // Relación inversa con Transaction
+  tickets     Ticket[]
+}
+
+model Ticket {
+  id             Int      @id @default(autoincrement())
+  quantity       Int
+  ticket_type_id Int
+  bill_id        Int
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  ticketType TicketType @relation(fields: [ticket_type_id], references: [id])
+  bill       Bill       @relation(fields: [bill_id], references: [id])
+}
+
+model TicketType {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String?
+  price          Float // Usando Float para precios
+  index          Int      @default(autoincrement()) // Indice para ordenar los tipos de boletos
+  total_capacity Int // Cantidad total disponible para la venta de este tipo de boletos
+  is_active      Boolean  @default(true)
+  event_id       Int
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  event        Event         @relation(fields: [event_id], references: [id])
+  tickets      Ticket[]
+  ticketPromos TicketPromo[] // Relación inversa para TicketPromo
+}
+
+model TicketPromo {
+  id                       Int      @id @default(autoincrement())
+  name                     String
+  description              String?
+  index                    Int      @default(autoincrement())
+  discount_percentage      Float? // Porcentaje de descuento
+  discount_flat            Float? // Descuento fijo en dinero
+  code                     String? // Código para aplicar a esta promo
+  required_ticket_quantity Int? // Cantidad de tickets para aplicar a esta promo
+  ticket_type_id           Int
+  event_id                 Int
+  created_at               DateTime @default(now())
+  updated_at               DateTime @updatedAt
+
+  ticketType TicketType @relation(fields: [ticket_type_id], references: [id])
+  event      Event      @relation(fields: [event_id], references: [id])
+  bills      Bill[] // Relación inversa para Bill
+}
+
+model Stand {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  is_approved   Boolean  @default(false)
+  is_verified   Boolean  @default(false)
+  stand_type_id Int
+  user_id       Int // Usuario propietario o responsable del stand
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  standType StandType @relation(fields: [stand_type_id], references: [id])
+  user      User      @relation(fields: [user_id], references: [id])
+  bills     Bill[] // Relación inversa para Bill
+}
+
+model StandType {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String?
+  index          Int      @default(autoincrement())
+  measures       String? // Medidas, podría ser JSON o String
+  tables         Int      @default(1) // Número de mesas
+  chairs         Int      @default(1) // Número de sillas
+  has_tablecloth Boolean  @default(true) // Tiene mantel?
+  has_structure  Boolean  @default(false) // Viene con estructura?
+  price          Float // Precio base o de alquiler
+  total_capacity Int // Cantidad total disponible para la venta de este tipo de stand
+  event_id       Int
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  event  Event   @relation(fields: [event_id], references: [id])
+  stands Stand[] // Relación inversa
+}
+
+model Sponsor {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  amount      Int
+  is_approved Boolean  @default(false)
+  is_verified Boolean  @default(false)
+  user_id     Int // Usuario propietario o responsable del sponsor
+  event_id    Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user  User   @relation(fields: [user_id], references: [id])
+  event Event  @relation(fields: [event_id], references: [id])
+  bills Bill[] // Relación inversa Sponsor
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  permissions String[] // Usando  para almacenar permisos estructurados
+  level       Int // Nivel jerárquico del rol
+  is_default  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  users User[] // Relación inversa
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  date        DateTime // Fecha del evento
+  location    String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  bills        Bill[]
+  ticketTypes  TicketType[]
+  sponsors     Sponsor[]
+  standTypes   StandType[]
+  ticketPromos TicketPromo[]
+}
