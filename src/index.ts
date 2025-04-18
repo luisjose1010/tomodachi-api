@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { PrismaClient } from "@prisma/client";
+import authRoutes from './routes/auth.routes';
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,8 @@ app.use(morgan('common'));
 app.get('/', (_req, res) => {
   res.send('Hello from Tomodachi Events API!');
 });
+
+app.use('/auth', authRoutes);
 
 app.post('/users', (req, res) => {
   const data = {

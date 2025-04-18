@@ -84,13 +84,15 @@ const roles = [
   }
 ]
 
+const hashedPassword = '$2b$10$1J2HYioUaGpsHXkf9gcUBO/VxwpNb6K/15CQIblhKFRCOIRK9VlGe';
+
 const users = [
   {
     id: 1,
     id_card: 'V-0000000000',
     name: 'Admin',
     email: 'admin@example.com',
-    password: 'admin',
+    password: hashedPassword, // default password: admin123
     role_id: roles[0].id,
   },
 ]
