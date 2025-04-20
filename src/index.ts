@@ -1,5 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 
 import { PrismaClient } from "@prisma/client";
 import authRoutes from './routes/auth.routes';
@@ -11,6 +12,7 @@ const port = process.env.PORT ?? 3000;
 
 app.use(express.json());
 app.use(morgan('common'));
+app.use(cors());
 
 app.get('/', (_req, res) => {
   res.send('Hello from Tomodachi Events API!');
@@ -47,3 +49,5 @@ app.get('/users', (_req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+export { app }

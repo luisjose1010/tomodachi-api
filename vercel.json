@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "src": "/(.*)",
+      "dest": "api/serverless.js"
     }
-  ]
+  ],
+  "outputDirectory": "dist"
 }
