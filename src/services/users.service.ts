@@ -7,6 +7,17 @@ export async function getAllUsers() {
   return db.user.findMany()
 }
 
+export async function getUserById(id: number) {
+  return db.user.findUnique({ where: { id } })
+}
+
+export async function getUserWithRoleById(id: number) {
+  return db.user.findUnique({
+    where: { id },
+    include: { role: true },
+  })
+}
+
 export async function getUserByEmail(email: string) {
   return db.user.findUnique({ where: { email } })
 }

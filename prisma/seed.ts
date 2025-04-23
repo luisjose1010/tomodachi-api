@@ -1,49 +1,7 @@
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+import { permissions } from '../src/lib/consts';
 
 const prisma = new PrismaClient()
-
-// lib/types.ts
-enum PermissionLevel {
-  Admin = 1,
-  Organizer = 2,
-  Cashier = 3,
-  Doorman = 4,
-  Customer = 5,
-}
-
-// lib/types.ts
-interface RolePermissions {
-  permissions: string[];
-  level: PermissionLevel;
-}
-
-// lib/const.ts
-const permissions: Record<string, RolePermissions> = {
-  admin: {
-    permissions: ['admin'],
-    level: PermissionLevel.Admin,
-  },
-  moderator: {
-    permissions: ['usuarios', 'roles'],
-    level: PermissionLevel.Organizer,
-  },
-  organizer: {
-    permissions: ['stands', 'sponsors', 'eventos'],
-    level: PermissionLevel.Organizer,
-  },
-  cashier: {
-    permissions: ['transacciones'],
-    level: PermissionLevel.Cashier,
-  },
-  doorman: {
-    permissions: ['facturas', 'entradas'],
-    level: PermissionLevel.Doorman,
-  },
-  customer: {
-    permissions: [],
-    level: PermissionLevel.Customer,
-  },
-};
 
 const roles = [
   {
