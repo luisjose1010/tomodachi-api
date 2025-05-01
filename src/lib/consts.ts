@@ -26,3 +26,8 @@ export const permissions: Record<string, RolePermissions> = {
     level: PermissionLevel.Customer,
   },
 };
+
+export const {
+  JWT_SECRET = 'secret',
+  JWT_EXPIRATION_HOURS = '12',
+} = process.env

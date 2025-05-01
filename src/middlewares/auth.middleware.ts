@@ -2,10 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { Permission, PermissionLevel } from '../lib/types';
-import { getUserWithRoleById } from "../services/users.service";
-
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET ?? 'secret';
+import { getUserById } from "../services/users.service";
+import { JWT_SECRET } from "../lib/consts";
 
 interface AuthenticateOptions {
   permission?: Permission;
@@ -41,7 +39,7 @@ export function authenticate({
         (req as any).user = { id: userId, roleId: roleId }; // Adjuntar al request (¡importante el cast!)
 
         // Opcional: Buscar el usuario y su rol en la base de datos
-        const user = await getUserWithRoleById(userId);
+        const user = await getUserById(userId, { role: true });
 
         if (!user) {
           res.status(401).json({ message: 'Unauthorized Access: User not found' });

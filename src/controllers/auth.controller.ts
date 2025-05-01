@@ -1,12 +1,9 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { registerUserSchema, loginUserSchema } from '../schemas/auth.schemas';
 import { createUser, getUserByEmail } from "../services/users.service";
-
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET ?? 'secret';
+import { generateJWTToken } from "../lib/utils";
 
 export async function registerUser(req: Request, res: Response) {
   try {
@@ -27,7 +24,10 @@ export async function registerUser(req: Request, res: Response) {
       password: hashedPassword,
     });
 
-    res.status(201).json({ message: "User successfully registered", userId: newUser.id });
+    // Generate a JWT token
+    const token = generateJWTToken(newUser.id, newUser.role_id);
+
+    res.status(201).json({ message: "User successfully registered", token, userId: newUser.id });
   } catch (error) {
     res.status(400).json({ message: "Error registering user", error: error });
   }
@@ -52,9 +52,9 @@ export async function loginUser(req: Request, res: Response) {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ userId: user.id, roleId: user.role_id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = generateJWTToken(user.id, user.role_id);
 
-    res.status(200).json({ message: "Successful login", token: token });
+    res.status(200).json({ message: "Successful login", token, userId: user.id });
   } catch (error) {
     res.status(400).json({ message: "Login failed", error: error });
   }

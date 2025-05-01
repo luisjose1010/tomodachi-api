@@ -3,23 +3,24 @@ import { db } from "./db";
 
 type UserCreate = Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput>;
 
+interface IncludeOptions {
+  role?: boolean;
+  transactions?: boolean;
+}
+
 export async function getAllUsers() {
   return db.user.findMany()
 }
 
-export async function getUserById(id: number) {
-  return db.user.findUnique({ where: { id } })
-}
-
-export async function getUserWithRoleById(id: number) {
+export async function getUserById(id: number, include: Prisma.UserInclude = {}) {
   return db.user.findUnique({
     where: { id },
-    include: { role: true },
+    include
   })
 }
 
-export async function getUserByEmail(email: string) {
-  return db.user.findUnique({ where: { email } })
+export async function getUserByEmail(email: string, include: Prisma.UserInclude = {}) {
+  return db.user.findUnique({ where: { email }, include })
 }
 
 export async function createUser(data: UserCreate) {
