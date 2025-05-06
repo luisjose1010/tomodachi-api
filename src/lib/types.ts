@@ -1,3 +1,12 @@
+import { Request } from 'express';
+
+export interface RequestAuthenticated extends Request {
+  user?: {
+    id: number;
+    roleId: number;
+  };
+}
+
 export type Permission = 'admin' | 'usuarios' | 'roles'
   | 'stands' | 'sponsors' | 'eventos'
   | 'transacciones' | 'facturas' | 'entradas';

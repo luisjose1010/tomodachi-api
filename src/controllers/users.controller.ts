@@ -12,7 +12,6 @@ export async function getUser(req: Request, res: Response) {
     const { id } = req.params;
     const { include } = req.query;
 
-    let user;
     let includeOptions;
 
     if (typeof include === 'string') {
@@ -24,7 +23,7 @@ export async function getUser(req: Request, res: Response) {
       };
     }
 
-    user = await getUserById(parseInt(id), includeOptions);
+    const user = await getUserById(parseInt(id), includeOptions);
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });

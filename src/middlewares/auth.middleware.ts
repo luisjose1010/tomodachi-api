@@ -1,7 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-import { Permission, PermissionLevel } from '../lib/types';
+import { Permission, PermissionLevel, RequestAuthenticated } from '../lib/types';
 import { getUserById } from "../services/users.service";
 import { JWT_SECRET } from "../lib/consts";
 
@@ -16,7 +15,7 @@ export function authenticate({
   level,
   allowOwner,
 }: AuthenticateOptions) {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (req: RequestAuthenticated, res: Response, next: NextFunction) => {
     try {
       // Obtener el token del encabezado de autorización
       const authHeader = req.headers.authorization;
@@ -36,7 +35,7 @@ export function authenticate({
 
         // Si el token es válido, `decoded` contendrá la información del usuario
         const { userId, roleId } = decoded as { userId: number; roleId: number };
-        (req as any).user = { id: userId, roleId: roleId }; // Adjuntar al request (¡importante el cast!)
+        req.user = { id: userId, roleId: roleId }; // Adjuntar al request (¡importante el cast!)
 
         // Opcional: Buscar el usuario y su rol en la base de datos
         const user = await getUserById(userId, { role: true });
@@ -47,7 +46,7 @@ export function authenticate({
         }
 
         // Adjuntar la información del usuario al objeto `req` (usamos un cast para evitar errores de tipo)
-        (req as any).user = { id: userId, roleId: user.role_id };
+        req.user = { id: userId, roleId: user.role_id };
 
         // Lógica de Verificación de Permisos (tu lógica)
         if (user.role.permissions.includes('admin')) { // Más seguro usar la cadena directamente

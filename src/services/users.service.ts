@@ -3,11 +3,6 @@ import { db } from "./db";
 
 type UserCreate = Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput>;
 
-interface IncludeOptions {
-  role?: boolean;
-  transactions?: boolean;
-}
-
 export async function getAllUsers() {
   return db.user.findMany()
 }

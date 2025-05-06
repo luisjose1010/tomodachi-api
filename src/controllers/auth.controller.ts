@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { registerUserSchema, loginUserSchema } from '../schemas/auth.schemas';
 import { createUser, getUserByEmail } from "../services/users.service";
