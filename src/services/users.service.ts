@@ -1,21 +1,21 @@
-import { Prisma } from "@prisma/client";
-import { db } from "./db";
+import { Prisma } from '@prisma/client';
+import { db } from './db';
 
 type UserCreate = Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput>;
 
 export async function getAllUsers() {
-  return db.user.findMany()
+  return db.user.findMany();
 }
 
 export async function getUserById(id: number, include: Prisma.UserInclude = {}) {
   return db.user.findUnique({
     where: { id },
-    include
-  })
+    include,
+  });
 }
 
 export async function getUserByEmail(email: string, include: Prisma.UserInclude = {}) {
-  return db.user.findUnique({ where: { email }, include })
+  return db.user.findUnique({ where: { email }, include });
 }
 
 export async function createUser(data: UserCreate) {

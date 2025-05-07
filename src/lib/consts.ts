@@ -30,4 +30,4 @@ export const permissions: Record<string, RolePermissions> = {
 export const {
   JWT_SECRET = 'secret',
   JWT_EXPIRATION_HOURS = '12',
-} = process.env
+} = process.env;

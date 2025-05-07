@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Permission, PermissionLevel, RequestAuthenticated } from '../lib/types';
-import { getUserById } from "../services/users.service";
-import { JWT_SECRET } from "../lib/consts";
+import { getUserById } from '../services/users.service';
+import { JWT_SECRET } from '../lib/consts';
 
 interface AuthenticateOptions {
   permission?: Permission;
@@ -78,5 +78,5 @@ export function authenticate({
       console.error(error);
       res.status(401).json({ message: 'Unauthorized Access: Authentication Error' });
     }
-  }
+  };
 }

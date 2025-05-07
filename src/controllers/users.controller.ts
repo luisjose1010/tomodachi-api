@@ -1,8 +1,8 @@
-import { getAllUsers, getUserById } from "../services/users.service";
+import { getAllUsers, getUserById } from '../services/users.service';
 import { Request, Response } from 'express';
 import { userSchema, usersSchema } from '../schemas/users.schemas';
 
-export async function getUsers (_req: Request, res: Response) {
+export async function getUsers(_req: Request, res: Response) {
   const users = await getAllUsers();
   res.json({ users: usersSchema.parse(users) });
 }
@@ -15,7 +15,7 @@ export async function getUser(req: Request, res: Response) {
     let includeOptions;
 
     if (typeof include === 'string') {
-      const includeArray = include.split(',').map(item => item.trim());
+      const includeArray = include.split(',').map((item) => item.trim());
 
       includeOptions = {
         role: includeArray.includes('role'),
@@ -34,4 +34,4 @@ export async function getUser(req: Request, res: Response) {
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
   }
-};
+}
