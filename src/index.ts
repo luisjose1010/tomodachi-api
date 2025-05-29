@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import { authRouter } from './routes/auth.routes';
 import { usersRouter } from './routes/users.routes';
+import { ticketsRouter } from "./routes/tickets.routes";
 
 const app = express();
 const port = process.env.PORT ?? 3000;
@@ -18,6 +19,8 @@ app.get('/', (_req, res) => {
 
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
+app.use('/tickets', ticketsRouter);
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
