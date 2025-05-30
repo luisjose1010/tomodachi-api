@@ -4,7 +4,8 @@ import cors from 'cors';
 
 import { authRouter } from './routes/auth.routes';
 import { usersRouter } from './routes/users.routes';
-import { ticketsRouter } from "./routes/tickets.routes";
+import { billsRouter } from './routes/bills.routes';
+import { ticketTypesRouter } from './routes/ticketTypes.routes';
 
 const app = express();
 const port = process.env.PORT ?? 3000;
@@ -19,7 +20,8 @@ app.get('/', (_req, res) => {
 
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
-app.use('/tickets', ticketsRouter);
+app.use('/bills', billsRouter);
+app.use('/ticket-types', ticketTypesRouter);
 
 
 app.listen(port, () => {
