@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { getSoldQuantitiesForTicketTypes } from '../lib/utils';
 import { AddTicketsToBill, CreateBill } from '../schemas/bills.schemas';
 
 const prisma = new PrismaClient();
@@ -55,7 +56,6 @@ export async function addTicketsToBill(billId: number, ticketsToAdd: AddTicketsT
     const uniqueTicketTypeIds = Array.from(new Set(ticketsToAdd.map((ticket) => ticket.ticket_type_id)));
 
     // Use a Prisma transaction to ensure the atomicity of all operations
-    // (get capacity, validate, create tickets, update bill).
     const result = await prisma.$transaction(async (prismaTransaction) => {
       // 1. Get all necessary ticket types (price and total capacity)
       const ticketTypes = await prismaTransaction.ticketType.findMany({
@@ -78,22 +78,7 @@ export async function addTicketsToBill(billId: number, ticketsToAdd: AddTicketsT
 
       // 2. Get the quantities of tickets already sold for each ticket type
       // This is crucial to calculate the current availability.
-      const existingTicketQuantities = await prismaTransaction.ticket.groupBy({
-        by: ['ticket_type_id'],
-        _sum: {
-          quantity: true,
-        },
-        where: {
-          ticket_type_id: {
-            in: uniqueTicketTypeIds,
-          },
-        },
-      });
-
-      // Map the existing quantities for quick lookup
-      const existingQuantitiesMap = new Map(
-        existingTicketQuantities.map((item) => [item.ticket_type_id, item._sum.quantity || 0]),
-      );
+      const existingQuantitiesMap = await getSoldQuantitiesForTicketTypes(prismaTransaction, uniqueTicketTypeIds);
 
       let totalAmountToIncrement = 0;
       const ticketsToCreateData = [];
