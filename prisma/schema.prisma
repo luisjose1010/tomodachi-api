@@ -24,16 +24,17 @@ model User {
   phone_number String?  @unique
   instagram    String?
   is_verified  Boolean  @default(false)
+  is_active    Boolean  @default(true)
   role_id      Int
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
   role                 Role          @relation(fields: [role_id], references: [id])
+  verifiedTransactions Transaction[] @relation("VerifiedBy") // Relación para verified_by en Transactions
   transactions         Transaction[]
   bills                Bill[] // Relación inversa para Bills
   stands               Stand[] // Relación inversa para Stands
   sponsors             Sponsor[] // Relación inversa para Sponsors
-  verifiedTransactions Transaction[] @relation("VerifiedBy") // Relación para verified_by en Transactions
 }
 
 model Transaction {
@@ -52,8 +53,8 @@ model Transaction {
   updated_at       DateTime  @updatedAt
 
   user     User  @relation(fields: [user_id], references: [id])
-  verifier User? @relation("VerifiedBy", fields: [verified_by], references: [id]) // Usuario que verificó
   bill     Bill  @relation(fields: [bill_id], references: [id])
+  verifier User? @relation("VerifiedBy", fields: [verified_by], references: [id]) // Usuario que verificó
 }
 
 model Bill {
@@ -116,6 +117,7 @@ model TicketPromo {
   discount_flat            Float? // Descuento fijo en dinero
   code                     String? // Código para aplicar a esta promo
   required_ticket_quantity Int? // Cantidad de tickets para aplicar a esta promo
+  is_active                Boolean  @default(true)
   ticket_type_id           Int
   event_id                 Int
   created_at               DateTime @default(now())
@@ -163,10 +165,10 @@ model StandType {
 }
 
 model Sponsor {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   description String?
-  amount      Int
+  amount      Float
   is_approved Boolean  @default(false)
   is_verified Boolean  @default(false)
   user_id     Int // Usuario propietario o responsable del sponsor
@@ -183,7 +185,7 @@ model Role {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
-  permissions String[] // Usando  para almacenar permisos estructurados
+  permissions String[] // Usando para almacenar permisos estructurados
   level       Int // Nivel jerárquico del rol
   is_default  Boolean  @default(false)
   created_at  DateTime @default(now())
